@@ -13,10 +13,10 @@ record = Entrez.read(handle)
 handle.close()
 
 id_list = record["IdList"] # this will hold all the NCBI accession numbers
-print(f"Found {len(id_list)} genomes — sampling 100 for N protein extraction.\n")
+print(f"Found {len(id_list)} genomes — sampling 10 for N protein extraction.\n")
 
 
-sample_ids = random.sample(id_list, 100) #randomly sample 100 from the id list
+sample_ids = random.sample(id_list, 10) #randomly sample 10 from the id list
 
 
 n_proteins = [] #fasta format
@@ -56,3 +56,4 @@ df = pd.DataFrame(metadata)
 df.to_csv("sarscov2_N_metadata.csv", index=False)
 print(" saved: sarscov2_N_proteins.fasta")
 print(" saved: sarscov2_N_metadata.csv")
+
