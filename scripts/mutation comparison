@@ -10,8 +10,6 @@ OUT_CSV = "mutations_long.csv"
 
 #load sequences 
 records = list(SeqIO.parse(fasta_path, "fasta"))
-if len(records) == 0:
-    raise SystemExit("No sequences found in sarscov2_N_proteins.fasta")
 
 #first sequence is reference
 ref_id = records[0].id
