@@ -1,0 +1,31 @@
+"""
+mutation comparison for SARS-CoV-2 N protein
+aligh each AA sequence to a reference N protein
+"""
+from Bio import SeqIO, pairwise2
+import pandas as pd
+
+INPUT_FASTA = "sarscov2_N_proteins.fasta"
+OUT_CSV = "mutations_long.csv"
+
+#load sequences 
+records = list(SeqIO.parse(fasta_path, "fasta"))
+if len(records) == 0:
+    raise SystemExit("No sequences found in sarscov2_N_proteins.fasta")
+
+#first sequence is reference
+ref_id = records[0].id
+ref_seq = str(records[0].seq).replace("*", "")
+print(f"Reference: {ref_id} (len={len(ref_seq)})")
+
+mutations = []
+
+for i in range(1, len(records)):
+    rec = records[i]
+    sample_id = rec.id
+    qry_seq = str(rec.seq).replace("*", "")
+
+    aln = pairwise2.align.globalxx(ref_seq, qry_seq, one_alignment_only=True)[0]
+    ref_aln = aln.seqA
+    qry_aln = aln.seqB
+    
