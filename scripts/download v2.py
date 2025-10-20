@@ -11,7 +11,7 @@ MAX_RESULTS = 300  # per lineage
 BATCH_SIZE = 50    # searching by 50s (debugging)
 
 def fetch_sequences(lineage_name, lineage_term):
-    print(f"\n=== Searching {lineage_name} ===")
+    print(f"Searching {lineage_name}")
     base_term = (f"Severe acute respiratory syndrome coronavirus 2[Organism] AND human[host] AND 29000:31000[Sequence Length] AND {lineage_term}")
 
     # Search for IDs
@@ -64,3 +64,4 @@ pd.DataFrame(all_metadata).to_csv("sarscov2_N_metadata_21J_22C_subset.csv", inde
 
 print("\nSaved sarscov2_N_proteins_21J_22C_subset.fasta")
 print("Saved sarscov2_N_metadata_21J_22C_subset.csv")
+
