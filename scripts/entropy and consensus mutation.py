@@ -63,14 +63,15 @@ for i, ref_aa in enumerate(wuhan_seq, start=1):
         mutations.append({"Position": i,"Wuhan_AA": ref_aa,"22C_AA": aa_22C,"21J_AA": aa_21J,"Type": mut_type,"Entropy": round(entropy, 4)})
 
 
-# Save results
+#save results
 df = pd.DataFrame(mutations)
 df.to_csv("N_mutation_comparison_entropy.csv", index=False)
 
-# Also save full entropy profile
+#full entropy of all locations
 entropy_df = pd.DataFrame({"Position": list(range(1, len(entropies)+1)),"Entropy": entropies})
 entropy_df.to_csv("N_entropy_profile.csv", index=False)
 
 print("comparison complete")
 df = pd.read_csv('N_mutation_comparison_entropy.csv')
 df
+
