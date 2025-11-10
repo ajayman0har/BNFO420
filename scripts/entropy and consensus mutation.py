@@ -19,11 +19,11 @@ all_seqs = [str(rec.seq) for rec in records]
 
 def consensus(seqs): #create consensus sequences
     if not seqs:
-        return ""
+        return "" #debugging
     consensus = []
     for i in range(len(seqs[0])):
-        col = [s[i] for s in seqs if s[i] != "-"]
-        consensus.append(Counter(col).most_common(1)[0][0] if col else "-")
+        col = [s[i] for s in seqs if s[i] != "-"] #goes through each column for lineage
+        consensus.append(Counter(col).most_common(1)[0][0] if col else "-") #counting the most common and just isolating the AA from the list of tuples
     return "".join(consensus)
 
 def shannon_entropy(column): #shannon entropy method
@@ -45,7 +45,7 @@ cons_21J = consensus(seqs_21J)
 
 # Compare to wuhan
 mutations = []
-for i, ref_aa in enumerate(wuhan_seq, start=1):
+for i, ref_aa in enumerate(wuhan_seq, start=1): #enumerate to go through one by one
     aa_22C = cons_22C[i-1] if i-1 < len(cons_22C) else "-"
     aa_21J = cons_21J[i-1] if i-1 < len(cons_21J) else "-"
     entropy = entropies[i-1] if i-1 < len(entropies) else 0.0
@@ -53,14 +53,14 @@ for i, ref_aa in enumerate(wuhan_seq, start=1):
     # Only look at pos where different from wuhan
     if aa_22C != ref_aa or aa_21J != ref_aa:
         if aa_22C != ref_aa and aa_21J != ref_aa:
-            mut_type = "Convergent"  # both same compared to wuhan
+            mut_type = "Convergent"  # both same site compared to wuhan
             if aa_22C != aa_21J:
                 mut_type += " (different AAs)"
         elif aa_22C != ref_aa:
             mut_type = "22C-specific"
         elif aa_21J != ref_aa:
             mut_type = "21J-specific"
-        mutations.append({"Position": i,"Wuhan_AA": ref_aa,"22C_AA": aa_22C,"21J_AA": aa_21J,"Type": mut_type,"Entropy": round(entropy, 4)})
+        mutations.append({"Position": i,"Wuhan_AA": ref_aa,"22C_AA": aa_22C,"21J_AA": aa_21J,"Type": mut_type,"Entropy": round(entropy, 4)}) #"metadata" dictionary
 
 
 #save results
@@ -74,4 +74,5 @@ entropy_df.to_csv("N_entropy_profile.csv", index=False)
 print("comparison complete")
 df = pd.read_csv('N_mutation_comparison_entropy.csv')
 df
+
 
