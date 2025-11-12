@@ -33,6 +33,17 @@ def shannon_entropy(column): #shannon entropy method
         return 0.0
     return -sum((count / total) * math.log2(count / total) for count in counts.values())
 
+def aa_frequencies(seqs):
+    freq_table = []
+    seq_len = len(seqs[0])
+    for i in range(seq_len):
+        col = [s[i] for s in seqs if s[i] != "-"]
+        counts = Counter(col)
+        total = sum(counts.values())
+        freqs = {aa: round(count / total, 3) for aa, count in counts.items()} if total > 0 else {} #returning a list of dicts showing the amino acid frequencies at each position
+        freq_table.append(freqs)
+    return freq_table
+
 # getting entropy per site
 entropies = []
 for i in range(len(all_seqs[0])):
@@ -44,25 +55,38 @@ cons_22C = consensus(seqs_22C)
 cons_21J = consensus(seqs_21J)
 
 # Compare to wuhan
-mutations = []
-for i, ref_aa in enumerate(wuhan_seq, start=1): #enumerate to go through one by one
-    aa_22C = cons_22C[i-1] if i-1 < len(cons_22C) else "-"
-    aa_21J = cons_21J[i-1] if i-1 < len(cons_21J) else "-"
-    entropy = entropies[i-1] if i-1 < len(entropies) else 0.0
+freqs_22C = aa_frequencies(seqs_22C)
+freqs_21J = aa_frequencies(seqs_21J)
 
-    # Only look at pos where different from wuhan
-    if aa_22C != ref_aa or aa_21J != ref_aa:
+# mutation threshold and comparison
+freq_threshold = 0.05  # oonly in more than 5 percent of sequences
+mutations = []
+
+for i, ref_aa in enumerate(wuhan_seq, start=1):
+    aa_22C = cons_22C[i - 1] if i - 1 < len(cons_22C) else "-"
+    aa_21J = cons_21J[i - 1] if i - 1 < len(cons_21J) else "-"
+    entropy = entropies[i - 1] if i - 1 < len(entropies) else 0.0
+
+    freqs22 = freqs_22C[i - 1] if i - 1 < len(freqs_22C) else {}
+    freqs21 = freqs_21J[i - 1] if i - 1 < len(freqs_21J) else {}
+
+    # Include relevant amino acids are more than the frequency threshold
+    relevant22 = {aa: f for aa, f in freqs22.items() if aa != ref_aa and f >= freq_threshold}
+    relevant21 = {aa: f for aa, f in freqs21.items() if aa != ref_aa and f >= freq_threshold}
+
+    if relevant22 or relevant21 or aa_22C != ref_aa or aa_21J != ref_aa:
         if aa_22C != ref_aa and aa_21J != ref_aa:
-            mut_type = "Convergent"  # both same site compared to wuhan
+            mut_type = "Convergent"
             if aa_22C != aa_21J:
                 mut_type += " (different AAs)"
         elif aa_22C != ref_aa:
             mut_type = "22C-specific"
         elif aa_21J != ref_aa:
             mut_type = "21J-specific"
-        mutations.append({"Position": i,"Wuhan_AA": ref_aa,"22C_AA": aa_22C,"21J_AA": aa_21J,"Type": mut_type,"Entropy": round(entropy, 4)}) #"metadata" dictionary
+        else:
+            mut_type = "Minor-frequency mutation"
 
-
+        mutations.append({"Position": i,"Wuhan_AA": ref_aa,"22C_AA": aa_22C, "21J_AA": aa_21J, "22C_Mutations": relevant22,"21J_Mutations": relevant21,"Type": mut_type, "Entropy": round(entropy, 4)})
 #save results
 df = pd.DataFrame(mutations)
 df.to_csv("N_mutation_comparison_entropy.csv", index=False)
@@ -74,5 +98,6 @@ entropy_df.to_csv("N_entropy_profile.csv", index=False)
 print("comparison complete")
 df = pd.read_csv('N_mutation_comparison_entropy.csv')
 df
+
 
 
